@@ -19,16 +19,14 @@ def resultado_global(request):
     Porcentaje de votos nulos
     Total de votos de la elección
     """
-    totalVotantes=0
-    for i in Distrito.objects.all():
-        totalVotantes=i.cantidad_votantes
+    totalVotantes=Votos.objects.all().count()
+    # for i in Distrito.objects.all():
+    #     totalVotantes=i.cantidad_votantes
     context={
         'orderedCandidates': sorted(Candidato.objects.all(), key=lambda t: t.voted(), reverse=True),
         'blankVotes': (Votos.objects.filter(voted=None).count()*100)/totalVotantes,
     }
     context['distritos'] = Distrito.objects.all()
-    #TODO TU CODIGO AQUI
-
     return render(request,'global.html',context)
 
 
@@ -46,14 +44,12 @@ def resultado_distrital(request, distId):
     except ObjectDoesNotExist:
         return HttpResponse(404)
     votos=Votos.objects.filter(district=distrito).count()
-    ganador = sorted(Candidato.objects.all(), key=lambda o: o.voted(), reverse=True)[0]
+    ganador = sorted(Candidato.objects.all(), key=lambda o: o.votedIn(distrito.id), reverse=True)[0]
     context={
         'distrito': distrito,
         'porcentaje_votantes': (votos*100)/distrito.cantidad_votantes,
         'total_votantes': votos,
         'ganador': ganador
     }
-
-    #TODO TU CODIGO AQUI
 
     return render(request,'distrital.html',context)

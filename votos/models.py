@@ -42,21 +42,21 @@ class Candidato(models.Model):
         return "{}, {}".format(self.apellido, self.nombre)
 
     def percent(self):
-        total = 0
-        for distrito in Distrito.objects.all():
-            total += distrito.cantidad_votantes
+        total = Votos.objects.all().count()
+        #for distrito in Distrito.objects.all():
+        #    total += distrito.cantidad_votantes
 
         return (self.voted()*100)/total
 
     def percentIn(self, distId):
         distrito = Distrito.objects.get(pk=distId)
-        return (self.votedIn(distrito.id)*100)/distrito.cantidad_votantes
+        return (self.votedIn(distrito.id)*100)/Votos.objects.filter(district=distrito, voted=self).count()
 
     def voted(self):
         return Votos.objects.filter(voted = self).count()
 
     def votedIn(self, distId):
-        district = Distrito.filter.get(pk=distId)
+        district = Distrito.objects.get(pk=distId)
         return Votos.objects.filter(voted=self, district=district).count()
 
     def __str__(self):
