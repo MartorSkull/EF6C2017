@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
+from django.http import HttpResponse
 
 # Create your views here.
 from votos.models import *
@@ -17,14 +19,20 @@ def resultado_global(request):
     Porcentaje de votos nulos
     Total de votos de la elección
     """
-    context={}
+    totalVotantes=0
+    for i in Distrito.objects.all():
+        totalVotantes=i.cantidad_votantes
+    context={
+        'orderedCandidates': sorted(Candidato.objects.all(), key=lambda t: t.voted(), reverse=True),
+        'blankVotes': (Votos.objects.filter(voted=None).count()*100)/totalVotantes,
+    }
     context['distritos'] = Distrito.objects.all()
     #TODO TU CODIGO AQUI
 
     return render(request,'global.html',context)
 
 
-def resultado_distrital(request):
+def resultado_distrital(request, distId):
     """
     Generar la vista para devolver el resultado distrital de la elección
     Tener en cuenta que tiene que tener:
@@ -33,7 +41,18 @@ def resultado_distrital(request):
     Total de votos del distrito
     Candidato ganador
     """
-    context={}
+    try:
+        distrito=Distrito.objects.get(pk=distId)
+    except ObjectDoesNotExist:
+        return HttpResponse(404)
+    votos=Votos.objects.filter(district=distrito).count()
+    ganador = sorted(Candidato.objects.all(), key=lambda o: o.voted(), reverse=True)[0]
+    context={
+        'distrito': distrito,
+        'porcentaje_votantes': (votos*100)/distrito.cantidad_votantes,
+        'total_votantes': votos,
+        'ganador': ganador
+    }
 
     #TODO TU CODIGO AQUI
 
