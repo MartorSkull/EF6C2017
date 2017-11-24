@@ -24,17 +24,53 @@ class Distrito(models.Model):
 
 class Candidato(models.Model):
     """
-    #TODO Completar segun consideraciones del desarrollador
-    En este comentario escribir por que se decide modelar de esta
-    forma la clase
+    Ese modelo ha sido diseniado con la idea de que se necesitara:
+    el nombre del Candidato y el apellido del mismo.
+    Entre los metodos de este modelo encontramos:
+    fullname: genera el nombre completo del candidato
+    percent: calcula el porcentaje global del candidato
+    percentIn: calcula el porcentaje dentro de un distrito
+    voted: la cantidad de votos que recibio el candidato
+    votedIn: la cantidad de votos que recibio un candidato en un distrito
+    De esta forma la mayor parte de los calculos se realizan directamente desde 
+    Lo cual permite acceder mas facil a los datos.
     """
-    pass
+    nombre = models.CharField(max_length=128)
+    apellido = models.CharField(max_length=128)
 
+    def fullname(self):
+        return "{}, {}".format(self.apellido, self.nombre)
+
+    def percent(self):
+        total = 0
+        for distrito in Distrito.objects.all():
+            total += distrito.cantidad_votantes
+
+        return (self.voted()*100)/total
+
+    def percentIn(self, distId):
+        distrito = Distrito.objects.get(pk=distId)
+        return (self.votedIn(distrito.id)*100)/distrito.cantidad_votantes
+
+    def voted(self):
+        return Votos.objects.filter(voted = self).count()
+
+    def votedIn(self, distId):
+        district = Distrito.filter.get(pk=distId)
+        return Votos.objects.filter(voted=self, district=district).count()
+
+    def __str__(self):
+        return self.fullname()
 
 class Votos(models.Model):
     """
-    #TODO Completar segun consideraciones del desarrollador
-    En este comentario escribir por que se decide modelar de esta
-    forma la clase
+    Este modelo ha sido diseniado con la idea de que se necesitara 
+    el candidato votado, este puede ser en blanco, guardado en voted 
+    y el distrito en el que se realizo este voto para luego obtener las
+    estadisticas necesarias para cada distrito
     """
-    pass
+    voted = models.ForeignKey(Candidato, null=True, blank=True)
+    district = models.ForeignKey(Distrito)
+
+    def __str__(self):
+        return "{} @ {}".format(self.voted, self.district)
