@@ -46,11 +46,11 @@ class Candidato(models.Model):
         #for distrito in Distrito.objects.all():
         #    total += distrito.cantidad_votantes
 
-        return (self.voted()*100)/total
+        return float((self.voted()*100))/total
 
     def percentIn(self, distId):
         distrito = Distrito.objects.get(pk=distId)
-        return (self.votedIn(distrito.id)*100)/Votos.objects.filter(district=distrito, voted=self).count()
+        return float((self.votedIn(distrito.id)*100))/Votos.objects.filter(district=distrito, voted=self).count()
 
     def voted(self):
         return Votos.objects.filter(voted = self).count()

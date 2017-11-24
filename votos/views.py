@@ -24,7 +24,7 @@ def resultado_global(request):
     #     totalVotantes=i.cantidad_votantes
     context={
         'orderedCandidates': sorted(Candidato.objects.all(), key=lambda t: t.voted(), reverse=True),
-        'blankVotes': (Votos.objects.filter(voted=None).count()*100)/totalVotantes,
+        'blankVotes': float((Votos.objects.filter(voted=None).count()*100))/totalVotantes,
     }
     context['distritos'] = Distrito.objects.all()
     return render(request,'global.html',context)
@@ -47,7 +47,7 @@ def resultado_distrital(request, distId):
     ganador = sorted(Candidato.objects.all(), key=lambda o: o.votedIn(distrito.id), reverse=True)[0]
     context={
         'distrito': distrito,
-        'porcentaje_votantes': (votos*100)/distrito.cantidad_votantes,
+        'porcentaje_votantes': float((votos*100))/distrito.cantidad_votantes,
         'total_votantes': votos,
         'ganador': ganador
     }
