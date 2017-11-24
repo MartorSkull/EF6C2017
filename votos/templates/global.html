@@ -1,13 +1,18 @@
 <h1>Resultado de elecciones</h1>
 
 <!-- Deberias escribir el codigo aqui -->
-
+<ul>
+{% for candidate in orderedCandidates %}
+    <li>{{ candidate.fullname }}: {{ candidate.percent }}</li>
+{% endfor %}
+    <li>Votos en blanco: {{ blankVotes }}</li>
+</ul>
 
 <h2>Resultados Por distrito</h2>
 
 <!--Si la url esta bien escrita, este codigo es funcional -->
 
 {% for distrito in distritos %}
-<a href="{% url 'distrital' %}">{{distrito}}</a><br>
+<a href="{% url 'distrital' distrito.id %}">{{distrito}}</a><br>
 
 {% endfor %}
